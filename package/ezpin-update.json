@@ -1,0 +1,9 @@
+{
+  "version": "1.1.0",
+  "download_url": "https://github.com/iamrook/ezpin-releases/releases/download/v1.1.0/ezpin-1.1.0.zip",
+  "sha256": "145725720af9f92b97969901549061622b122031aa4bf67909abf9dfcdda131d",
+  "requires": "6.2",
+  "requires_php": "7.4",
+  "tested": "7.1",
+  "changelog": "Receive stable GitHub releases through WordPress's normal update screen, with optional administrator-controlled automatic updates, release details, cached checks, and SHA-256 package verification. Add reproducible release packaging and a tested GitHub release workflow. Existing settings and Pinterest behavior are preserved."
+}
