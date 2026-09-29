@@ -1,0 +1,42 @@
+name: Publish EZPin downloads
+on:
+  push:
+    branches: ['codex/releases']
+    tags: ['v*']
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ezpin-downloads-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify distributable
+        env:
+          RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+        run: python scripts/verify-package.py
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          asset="$RUNNER_TEMP/ezpin-${RELEASE_TAG#v}.zip"
+          cp package/ezpin.zip "$asset"
+          gh release create "$RELEASE_TAG" "$asset" package/ezpin-update.json --verify-tag --draft --title "EZPin ${RELEASE_TAG#v}" --notes-file package/release-notes.md
+          gh release edit "$RELEASE_TAG" --draft=false --latest
